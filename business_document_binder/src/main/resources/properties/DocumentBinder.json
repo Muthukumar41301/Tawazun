@@ -1,0 +1,108 @@
+[{
+  "title" : "@@form.DocumentBinder.config@@",
+  "properties" : [{
+    "name" : "templatePath",
+    "label" : "@@form.WordTemplatePath.driver@@",
+    "description" : "@@form.WordTemplatePath.driver.desc@@",
+    "type" : "textfield",
+    "control_value": "custom",
+    "required" : "true"
+  },
+    {
+      "name" : "documentPath",
+      "label" : "@@form.WordDocumentPath.driver@@",
+      "description" : "@@form.WordDocumentPath.driver.desc@@",
+      "type" : "textfield",
+      "control_value": "custom",
+      "required" : "true"
+    },
+    {
+      "name" : "userName",
+      "label" : "@@form.userName.driver@@",
+      "description" : "@@form.userName.driver.desc@@",
+      "type" : "textfield",
+      "control_value": "custom",
+      "required" : "true"
+    },
+    {
+      "name" : "userFullName",
+      "label" : "@@form.userFullName.driver@@",
+      "description" : "@@form.userFullName.driver.desc@@",
+      "type" : "textfield",
+      "control_value": "custom",
+      "required" : "true"
+    },
+    {
+      "name" : "keyRiskDefId",
+      "label" : "@@form.keyRiskDefId.driver@@",
+      "description" : "@@form.keyRiskDefId.driver.desc@@",
+      "type" : "textfield",
+      "control_value": "custom",
+      "required" : "true"
+    },
+    {
+      "name" : "PMOName",
+      "label" : "@@form.PMOName.driver@@",
+      "description" : "@@form.PMOName.driver.desc@@",
+      "type" : "textfield",
+      "control_value": "custom",
+      "required" : "false"
+    },
+    {
+      "name" : "projectManagerDate",
+      "label" : "@@form.projectManagerDate.driver@@",
+      "description" : "@@form.projectManagerDate.driver.desc@@",
+      "type" : "textfield",
+      "control_value": "custom",
+      "required" : "false"
+    },
+    {
+      "name" : "sponsorName",
+      "label" : "@@form.sponsorName.driver@@",
+      "description" : "@@form.sponsorName.driver.desc@@",
+      "type" : "textfield",
+      "control_value": "custom",
+      "required" : "false"
+    },
+    {
+      "name" : "sponsorDate",
+      "label" : "@@form.sponsorDate.driver@@",
+      "description" : "@@form.sponsorDate.driver.desc@@",
+      "type" : "textfield",
+      "control_value": "custom",
+      "required" : "false"
+    },
+    {
+      "name" : "unitChiefName",
+      "label" : "@@form.unitChiefName.driver@@",
+      "description" : "@@form.unitChiefName.driver.desc@@",
+      "type" : "textfield",
+      "control_value": "custom",
+      "required" : "false"
+    },
+    {
+      "name" : "unitChiefDate",
+      "label" : "@@form.unitChiefDate.driver@@",
+      "description" : "@@form.unitChiefDate.driver.desc@@",
+      "type" : "textfield",
+      "control_value": "custom",
+      "required" : "false"
+    },
+    {
+      "name" : "strategyName",
+      "label" : "@@form.strategyName.driver@@",
+      "description" : "@@form.strategyName.driver.desc@@",
+      "type" : "textfield",
+      "control_value": "custom",
+      "required" : "false"
+    },
+    {
+      "name" : "strategyDate",
+      "label" : "@@form.strategyDate.driver@@",
+      "description" : "@@form.strategyDate.driver.desc@@",
+      "type" : "textfield",
+      "control_value": "custom",
+      "required" : "false"
+    }
+  ]
+}]
