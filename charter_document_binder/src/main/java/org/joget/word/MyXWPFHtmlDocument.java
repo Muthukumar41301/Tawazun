@@ -19,7 +19,7 @@ public class MyXWPFHtmlDocument extends POIXMLDocumentPart {
                 + "<html>"
                 + "<head>"
                 + "<style>"
-                + "body { font-family: 'Calibri', sans-serif; color: #7E7E7E; font-size: 9pt;}"
+                + "body { font-family: 'Calibri', sans-serif; }"
                 + "</style>"
                 + "<title>HTML import</title>"
                 + "</head>"
