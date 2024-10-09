@@ -255,39 +255,39 @@ public class DocumentBinder extends FormBinder implements FormStoreBinder, FormS
                                                 r.setText(text, 0);
                                             }
                                             if (text.equals("Vendor_name")) {
-                                                text = text.replace("Vendor_name", jsonObject.getProperty("project_vendor"));
+                                                text = text.replace("Vendor_name", jsonObject.getProperty("project_vendor")== null ? "" : jsonObject.getProperty("project_vendor"));
                                                 r.setText(text, 0);
                                             }
                                             if (text.equals("Co_Ordinator")) {
-                                                text = text.replace("Co_Ordinator", getFullName(jsonObject.getProperty("project_co_ordinator")));
+                                                text = text.replace("Co_Ordinator", getFullName(jsonObject.getProperty("project_co_ordinator"))== null ? "" : getFullName(jsonObject.getProperty("project_co_ordinator")));
                                                 r.setText(text, 0);
                                             }
                                             if (text.equals("Point_of_conduct")){
-                                                text = text.replace("Point_of_conduct", getFullName(jsonObject.getProperty("businesspoint_contact")));
+                                                text = text.replace("Point_of_conduct", getFullName(jsonObject.getProperty("businesspoint_contact"))== null ? "" : getFullName(jsonObject.getProperty("businesspoint_contact")));
                                                 r.setText(text, 0);
                                             }
                                             if (text.equals("System_integrator")) {
-                                                text = text.replace("System_integrator", getFullName(jsonObject.getProperty("technical_integrator")));
+                                                text = text.replace("System_integrator", getFullName(jsonObject.getProperty("technical_integrator"))== null ? "" : getFullName(jsonObject.getProperty("technical_integrator")));
                                                 r.setText(text, 0);
                                             }
                                             if (text.equals("information_governance")) {
-                                                text = text.replace("information_governance", jsonObject.getProperty("information_governance"));
+                                                text = text.replace("information_governance", getFullName(jsonObject.getProperty("information_governance"))== null ? "" : getFullName(jsonObject.getProperty("information_governance")));
                                                 r.setText(text, 0);
                                             }
                                             if (text.equals("Scope_reviewer")) {
-                                                text = text.replace("Scope_reviewer", getFullName(jsonObject.getProperty("scope_reviewer")));
+                                                text = text.replace("Scope_reviewer", getFullName(jsonObject.getProperty("scope_reviewer"))== null ? "" : getFullName(jsonObject.getProperty("scope_reviewer")));
                                                 r.setText(text, 0);
                                             }
                                             if (text.equals("Plan_reviewer")) {
-                                                text = text.replace("Plan_reviewer", getFullName(jsonObject.getProperty("plan_reviewer")));
+                                                text = text.replace("Plan_reviewer", getFullName(jsonObject.getProperty("plan_reviewer"))== null ? "" : getFullName(jsonObject.getProperty("plan_reviewer")));
                                                 r.setText(text, 0);
                                             }
                                             if (text.equals("Cr_reviewer")) {
-                                                text = text.replace("Cr_reviewer", getFullName(jsonObject.getProperty("change_request_reviewer")));
+                                                text = text.replace("Cr_reviewer", getFullName(jsonObject.getProperty("change_request_reviewer"))== null ? "" : getFullName(jsonObject.getProperty("change_request_reviewer")));
                                                 r.setText(text, 0);
                                             }
                                             if (text.equals("Uat_reviewer")) {
-                                                text = text.replace("Uat_reviewer", getFullName(jsonObject.getProperty("uat_reviewer")));
+                                                text = text.replace("Uat_reviewer", getFullName(jsonObject.getProperty("uat_reviewer")) == null ? "" : getFullName(jsonObject.getProperty("uat_reviewer")));
                                                 r.setText(text, 0);
                                             }
                                             if (text.contains("startDate")) {
@@ -348,13 +348,8 @@ public class DocumentBinder extends FormBinder implements FormStoreBinder, FormS
                 }
             }
 
-//            String defId= this.getPropertyString("milestoneDefId");
             String keyDefId= this.getPropertyString("keyRiskDefId");
-//            LogUtil.info("defId",defId);
             LogUtil.info("keyDefId",keyDefId);
-
-            //Milestone
-//            setMilestone(jsonObject.getProperty("id"),apachDoc,defId);
             //Key Risks
             setKeyRisks(jsonObject.getProperty("id"),apachDoc,keyDefId);
             //File History
@@ -380,21 +375,14 @@ public class DocumentBinder extends FormBinder implements FormStoreBinder, FormS
         return myXWPFHtmlDocument;
     }
 
-    public void replaceIBodyElementWithAltChunk(XWPFDocument document, String textToFind, MyXWPFHtmlDocument myXWPFHtmlDocument){
+    public void replaceIBodyElementWithAltChunk(XWPFDocument document, String textToFind, MyXWPFHtmlDocument myXWPFHtmlDocument) {
         List<IBodyElement> iBodyElements = new ArrayList<>();
         for (IBodyElement bodyElement : document.getBodyElements()) {
             if (bodyElement instanceof XWPFParagraph) {
                 XWPFParagraph paragraph = (XWPFParagraph) bodyElement;
                 String text = paragraph.getText();
                 if (text != null && text.contains(textToFind)) {
-                    XmlCursor cursor = paragraph.getCTP().newCursor();
-                    cursor.toEndToken();
-                    while (cursor.toNextToken() != XmlCursor.TokenType.START);
-                    String uri = CTAltChunk.type.getName().getNamespaceURI();
-                    cursor.beginElement("altChunk", uri);
-                    cursor.toParent();
-                    CTAltChunk cTAltChunk = (CTAltChunk) cursor.getObject();
-                    cTAltChunk.setId(myXWPFHtmlDocument.getId());
+                    insertAltChunk(paragraph, myXWPFHtmlDocument);
                     iBodyElements.add(paragraph);
                 }
             } else if (bodyElement instanceof XWPFTable) {
@@ -404,22 +392,25 @@ public class DocumentBinder extends FormBinder implements FormStoreBinder, FormS
                         for (XWPFParagraph paragraph : tableCell.getParagraphs()) {
                             String text = paragraph.getText();
                             if (text != null && text.contains(textToFind)) {
-                                XmlCursor cursor = paragraph.getCTP().newCursor();
-                                cursor.toEndToken();
-                                while (cursor.toNextToken() != XmlCursor.TokenType.START);
-                                String uri = CTAltChunk.type.getName().getNamespaceURI();
-                                cursor.beginElement("altChunk", uri);
-                                cursor.toParent();
-                                CTAltChunk cTAltChunk = (CTAltChunk) cursor.getObject();
-                                cTAltChunk.setId(myXWPFHtmlDocument.getId());
+                                insertAltChunk(paragraph, myXWPFHtmlDocument);
                                 iBodyElements.add(paragraph);
-                                paragraph.getText().replace(textToFind," ");
                             }
                         }
                     }
                 }
             }
         }
+    }
+
+    private void insertAltChunk(XWPFParagraph paragraph, MyXWPFHtmlDocument myXWPFHtmlDocument) {
+        XmlCursor cursor = paragraph.getCTP().newCursor();
+        cursor.toEndToken();
+        while (cursor.toNextToken() != XmlCursor.TokenType.START);
+        String uri = CTAltChunk.type.getName().getNamespaceURI();
+        cursor.beginElement("altChunk", uri);
+        cursor.toParent();
+        CTAltChunk cTAltChunk = (CTAltChunk) cursor.getObject();
+        cTAltChunk.setId(myXWPFHtmlDocument.getId());
     }
 
     private void storeDocumentHistory(FormRow jsonObject, String fileNameGen, String primaryKey,String projectId) throws SQLException {
@@ -462,75 +453,6 @@ public class DocumentBinder extends FormBinder implements FormStoreBinder, FormS
         }
     }
 
-    public void setMilestone(String projectId, XWPFDocument apachDoc, String defId){
-        int targetTableIndex = 8;
-        XWPFTable targetTable = apachDoc.getTables().get(targetTableIndex);
-        int rowIndex = 2;
-        int rowIndex3 = 2;
-        LogUtil.info("projectId", projectId);
-        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        FormRowSet rows=new FormRowSet();
-        AppDefinition appDef = AppUtil.getCurrentAppDefinition();
-        FormDefinitionDao formDefinitionDao = (FormDefinitionDao) FormUtil.getApplicationContext().getBean("formDefinitionDao");
-        FormDefinition childformDef = formDefinitionDao.loadById(defId, appDef);
-        String tableName = childformDef.getTableName();
-
-        try {
-            if (tableName != null && projectId != null) {
-                FormDataDao formDataDao = (FormDataDao) AppUtil.getApplicationContext().getBean("formDataDao");
-                String propertyName = this.getFormPropertyName(tableName, "project_id");
-                String condition = "";
-                List<Object> paramsList = new ArrayList<>();
-
-                if (propertyName != null && !propertyName.isEmpty()) {
-                    condition += " WHERE " + propertyName + " = ?";
-                    paramsList.add(projectId);
-                }
-
-                Object[] paramsArray = paramsList.toArray();
-                rows = formDataDao.find(defId, tableName, condition, paramsArray, "dateCreated", false, (Integer) null, (Integer) null);
-            }
-
-            int milestoneSize = rows.size();
-            LogUtil.info("milestoneSize", String.valueOf(milestoneSize));
-            LogUtil.info("rows", String.valueOf(rows));
-            for (int i = 0; i < milestoneSize; i++) {
-                FormRow formRow = rows.get(i);
-                LogUtil.info("formRow", formRow.toString());
-                String milestoneName=rows.get(i).getProperty("milestone_name");
-                String milestoneDate=rows.get(i).getProperty("milestone_date");
-                LocalDate givenDate = LocalDate.parse(milestoneDate);
-                String projectmilstoneDate = givenDate.format(dateFormat);
-                XWPFTableRow row = targetTable.getRow(rowIndex);
-                if (row == null) {
-                    row = targetTable.createRow();
-                }
-                XWPFTableCell cell = row.getCell(2);
-                cell.removeParagraph(0);
-                XWPFParagraph addparagraph = cell.addParagraph();
-                XWPFRun run = addparagraph.createRun();
-                run.setFontFamily("calibri");
-                run.setFontSize(9);
-                run.setText(milestoneName);
-                rowIndex++;
-                XWPFTableRow row4 = targetTable.getRow(rowIndex3);
-                if (row4 == null) {
-                    row4 = targetTable.createRow();
-                }
-                XWPFTableCell cell4 = row4.getCell(3);
-                cell4.removeParagraph(0);
-                XWPFParagraph addparagraph4 = cell4.addParagraph();
-                XWPFRun run4 = addparagraph4.createRun();
-                run4.setFontFamily("calibri");
-                run4.setFontSize(9);
-                run4.setText(projectmilstoneDate);
-                rowIndex3++;
-            }
-        }catch (Exception ex){
-            LogUtil.error("Message",ex,"Dependencies Error");
-        }
-    }
-
     public void setKeyRisks(String projectId, XWPFDocument apachDoc, String keyDefId){
         int targetTableIndex1 = 5;
         XWPFTable table = apachDoc.getTables().get(targetTableIndex1);
@@ -564,8 +486,8 @@ public class DocumentBinder extends FormBinder implements FormStoreBinder, FormS
         for (int i = 0; i < riskSize; i++) {
             FormRow formRow = rows.get(i);
             LogUtil.info("formRow", String.valueOf(formRow));
-            String riskDescription=rows.get(i).getProperty("risk_title");
-            String riskLevel=rows.get(i).getProperty("risk_likelihood");
+            String riskDescription=rows.get(i).getProperty("risk_title") == null ? "" : rows.get(i).getProperty("risk_title");
+            String riskLevel=rows.get(i).getProperty("risk_likelihood") == null ? "" : rows.get(i).getProperty("risk_likelihood");
             XWPFTableRow row = table.getRow(rowIndex1);
             if (row == null) {
                 row = table.createRow();
@@ -593,7 +515,7 @@ public class DocumentBinder extends FormBinder implements FormStoreBinder, FormS
         }
     }
 
-    public void addFileHistory(String projectId, XWPFDocument apachDoc){
+    public void addFileHistory(String projectId, XWPFDocument apachDoc) throws SQLException {
         int targetTableIndex3 = 9;
         XWPFTable targetTable1 = apachDoc.getTables().get(targetTableIndex3);
         int rowIndex9 = 0;
@@ -601,21 +523,25 @@ public class DocumentBinder extends FormBinder implements FormStoreBinder, FormS
         XWPFTableCell cell1 = row1.getCell(1);
         XWPFParagraph paragraph1 = cell1.addParagraph();
         XWPFRun run1 = paragraph1.createRun();
+        DataSource ds = (DataSource) AppUtil.getApplicationContext().getBean("setupDataSource");
+        con = ds.getConnection();
         try {
-            if (!con.isClosed()) {
+            if (con != null && !con.isClosed()) {
                 stmt = con.prepareStatement("select * from app_fd_epms_document WHERE c_project_id=? and c_document_type != 'Business Case' ");
                 stmt.setObject(1, projectId);
                 rs = stmt.executeQuery();
                 int rowNum = 1;
                 while (rs.next()) {
-                    String attachedDocument = rs.getString("c_upload_documents");
-                    run1.setFontFamily("calibri");
-                    run1.setFontSize(9);
-                    run1.setText(rowNum + ". " + attachedDocument);
-                    String trimmedText = run1.getText(0).trim();
-                    run1.setText(trimmedText, 0);
-                    run1.addBreak();
-                    rowNum++;
+                    String attachedDocument = rs.getString("c_upload_documents") == null ? "" : rs.getString("c_upload_documents");
+                    if (attachedDocument !=null && !attachedDocument.isEmpty()) {
+                        run1.setFontFamily("calibri");
+                        run1.setFontSize(9);
+                        run1.setText(rowNum + ". " + attachedDocument);
+                        String trimmedText = run1.getText(0).trim();
+                        run1.setText(trimmedText, 0);
+                        run1.addBreak();
+                        rowNum++;
+                    }
                 }
             }
         }catch (Exception ex) {
