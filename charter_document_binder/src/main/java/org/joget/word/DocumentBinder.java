@@ -34,7 +34,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -253,8 +252,38 @@ public class DocumentBinder extends FormBinder implements FormStoreBinder, FormS
                                     text = text.replace("project_version", "V" + jsonObject.getProperty("charter_major_version") + "." + jsonObject.getProperty("charter_minor_version"));
                                     r.setText(text, 0);
                                 }
-                                if ((text.contains("project_summary") || text.contains("project_scope") || text.contains("acceptance_criteria") || text.contains("business_objectives") || text.contains("business_benefits") || text.contains("security_requirements") || text.contains("business_measures")) && jsonObject.getProperty(key).contains("<")) {
-                                    setText(apachDoc,jsonObject,key);
+                                if (text.equals("project_summary") && jsonObject.getProperty(key).contains("<")) {
+                                    setText(apachDoc,jsonObject,text,"summary");
+                                    text = text.replace(text, " ");
+                                    r.setText(text, 0);
+                                }
+                                if (text.equals("acceptance_criteria") && jsonObject.getProperty(key).contains("<")) {
+                                    setText(apachDoc, jsonObject, text,"criteria1");
+                                    text = text.replace(text, " ");
+                                    r.setText(text, 0);
+                                }
+                                if (text.equals("business_objectives") && jsonObject.getProperty(key).contains("<")) {
+                                    setText(apachDoc, jsonObject, text,"objectives1");
+                                    text = text.replace(text, " ");
+                                    r.setText(text, 0);
+                                }
+                                if (text.equals("business_measures") && jsonObject.getProperty(key).contains("<")) {
+                                    setText(apachDoc, jsonObject, text,"measures");
+                                    text = text.replace(text, " ");
+                                    r.setText(text, 0);
+                                }if (text.equals("security_requirements") && jsonObject.getProperty(key).contains("<")) {
+                                    setText(apachDoc, jsonObject, text,"security");
+                                    text = text.replace(text, " ");
+                                    r.setText(text, 0);
+                                }
+                                if (text.equals("project_scope") && jsonObject.getProperty(key).contains("<")) {
+                                    LogUtil.info("project_scope",key);
+                                    setText(apachDoc, jsonObject, text,"scope");
+                                    text = text.replace(text, " ");
+                                    r.setText(text, 0);
+                                }
+                                if (text.equals("potential_benefits") && jsonObject.getProperty(key).contains("<")) {
+                                    setText(apachDoc, jsonObject, text,"project_benefits");
                                     text = text.replace(text, " ");
                                     r.setText(text, 0);
                                 }
@@ -433,8 +462,8 @@ public class DocumentBinder extends FormBinder implements FormStoreBinder, FormS
         }
     }
 
-    public void setText(XWPFDocument apachDoc, FormRow jsonObject,String key) throws Exception {
-        MyXWPFHtmlDocument htmlSet = createHtmlDoc(apachDoc, key);
+    public void setText(XWPFDocument apachDoc, FormRow jsonObject, String key, String id) throws Exception {
+        MyXWPFHtmlDocument htmlSet = createHtmlDoc(apachDoc, id);
         htmlSet.setHtml(htmlSet.getHtml().replace("<body></body>",jsonObject.getProperty(key)));
         replaceIBodyElementWithAltChunk(apachDoc, key, htmlSet);
     }
