@@ -282,8 +282,8 @@ public class DocumentBinder extends FormBinder implements FormStoreBinder, FormS
                                     text = text.replace(text, " ");
                                     r.setText(text, 0);
                                 }
-                                if (text.equals("potential_benefits") && jsonObject.getProperty(key).contains("<")) {
-                                    setText(apachDoc, jsonObject, text,"project_benefits");
+                                if (text.equals("business_benefits") && jsonObject.getProperty(key).contains("<")) {
+                                    setText(apachDoc, jsonObject, text,"benefits");
                                     text = text.replace(text, " ");
                                     r.setText(text, 0);
                                 }
