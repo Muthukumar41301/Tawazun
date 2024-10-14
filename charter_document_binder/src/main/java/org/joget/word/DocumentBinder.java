@@ -23,6 +23,7 @@ import org.joget.plugin.base.PluginManager;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTAltChunk;
+import org.apache.commons.text.StringEscapeUtils;
 
 import javax.sql.DataSource;
 import java.io.File;
@@ -453,7 +454,7 @@ public class DocumentBinder extends FormBinder implements FormStoreBinder, FormS
             //Unaffected Products
             setUnaffectedProducts(jsonObject);
             //Timeline and Reports
-//            setTimelinesAndReports(jsonObject);
+            setTimelinesAndReports(jsonObject);
 
             LogUtil.info("list", "list load end");
 
@@ -563,9 +564,9 @@ public class DocumentBinder extends FormBinder implements FormStoreBinder, FormS
             JSONArray deliverable=new JSONArray(originalRow.getProperty("charter_highlevel_deliverables"));
             for (int i = 0; i < deliverable.length(); i++) {
                 JSONObject response = deliverable.getJSONObject(i);
-                String projectDeliverables = response.getString("charter_project_deliverables");
-                String clientDeliverables = response.getString("charter_client_deliverables");
-                String charterOutScope = response.getString("charter_out_scope");
+                String projectDeliverables = unescapeHtml(response.getString("charter_project_deliverables"));
+                String clientDeliverables = unescapeHtml(response.getString("charter_client_deliverables"));
+                String charterOutScope = unescapeHtml(response.getString("charter_out_scope"));
                 XWPFTableRow row = table.getRow(rowIndex);
                 if (row == null) {
                     row = table.createRow();
@@ -622,8 +623,8 @@ public class DocumentBinder extends FormBinder implements FormStoreBinder, FormS
                 stmt.setObject(1, projectId);
                 rs = stmt.executeQuery();
                 while (rs.next()) {
-                    String ownerOfDependency = rs.getString("c_owner") == null ? "" : rs.getString("c_owner");
-                    String deliverable = rs.getString("c_details") == null ? "" : rs.getString("c_details");
+                    String ownerOfDependency = rs.getString("c_owner") == null ? "" : getFullName(rs.getString("c_owner"));
+                    String deliverable = rs.getString("c_details") == null ? "" : unescapeHtml(rs.getString("c_details"));
                     String requiredDate = rs.getString("c_required_date") == null ? "" : rs.getString("c_required_date");
                     String criticality = rs.getString("c_criticality") == null ? "" : rs.getString("c_criticality");
                     XWPFTableRow row = table.getRow(rowIndex);
@@ -694,7 +695,7 @@ public class DocumentBinder extends FormBinder implements FormStoreBinder, FormS
             for (int i = 0; i < assumptions.length(); i++) {
                 JSONObject response = assumptions.getJSONObject(i);
                 String charterRelates = response.getString("charter_relates");
-                String assumptionDescription = response.getString("charter_assumption_description");
+                String assumptionDescription = unescapeHtml(response.getString("charter_assumption_description"));
                 String status = response.getString("charter_status");
                 XWPFTableRow row = table.getRow(rowIndex);
                 if (row == null) {
@@ -752,8 +753,8 @@ public class DocumentBinder extends FormBinder implements FormStoreBinder, FormS
                     String riskDescription=rs.getString("c_risk_title") == null ? "" : rs.getString("c_risk_title");
                     String riskLevel=rs.getString("c_risk_likelihood") == null ? "" : rs.getString("c_risk_likelihood");
                     String impactLevel=rs.getString("c_risk_impact") == null ? "" : rs.getString("c_risk_impact");
-                    String mitigationPlan=rs.getString("c_mitigation_plan") == null ? "" : rs.getString("c_mitigation_plan");
-                    String ContingencyPlan=rs.getString("c_contingency_plan") == null ? "" : rs.getString("c_contingency_plan");
+                    String mitigationPlan=rs.getString("c_mitigation_plan") == null ? "" : unescapeHtml(rs.getString("c_mitigation_plan"));
+                    String ContingencyPlan=rs.getString("c_contingency_plan") == null ? "" : unescapeHtml(rs.getString("c_contingency_plan"));
                     XWPFTableRow row = table.getRow(rowIndex);
                     if (row == null) {
                         row = table.createRow();
@@ -828,7 +829,7 @@ public class DocumentBinder extends FormBinder implements FormStoreBinder, FormS
                 JSONObject response = constraints.getJSONObject(i);
                 String constraintNumber = response.getString("charter_constraint_number");
                 String constrainRelates = response.getString("charter_constraint_relates");
-                String constrainDescription = response.getString("charter_constraint_description");
+                String constrainDescription = unescapeHtml(response.getString("charter_constraint_description"));
                 XWPFTableRow row = table.getRow(rowIndex);
                 if (row == null) {
                     row = table.createRow();
@@ -877,8 +878,8 @@ public class DocumentBinder extends FormBinder implements FormStoreBinder, FormS
             JSONArray affectedProducts=new JSONArray(originalRow.getProperty("project_charter_affected_products"));
             for (int i = 0; i < affectedProducts.length(); i++) {
                 JSONObject response = affectedProducts.getJSONObject(i);
-                String products = response.getString("charter_products");
-                String productsAffected = response.getString("charter_products_affected");
+                String products = unescapeHtml(response.getString("charter_products"));
+                String productsAffected = unescapeHtml(response.getString("charter_products_affected"));
                 XWPFTableRow row = table.getRow(rowIndex);
                 if (row == null) {
                     row = table.createRow();
@@ -916,8 +917,8 @@ public class DocumentBinder extends FormBinder implements FormStoreBinder, FormS
             JSONArray unaffectedProducts=new JSONArray(originalRow.getProperty("project_charter_unaffected_products"));
             for (int i = 0; i < unaffectedProducts.length(); i++) {
                 JSONObject response = unaffectedProducts.getJSONObject(i);
-                String products = response.getString("charter_unaffected_products");
-                String productsUnaffected = response.getString("charter_products_unaffected");
+                String products = unescapeHtml(response.getString("charter_unaffected_products"));
+                String productsUnaffected = unescapeHtml(response.getString("charter_products_unaffected"));
                 XWPFTableRow row = table.getRow(rowIndex);
                 if (row == null) {
                     row = table.createRow();
@@ -947,67 +948,37 @@ public class DocumentBinder extends FormBinder implements FormStoreBinder, FormS
         }
     }
 
-    public void setTimelinesAndReports(FormRow originalRow){
+    public void setTimelinesAndReports(FormRow originalRow) {
         int targetTableIndex = 14;
         XWPFTable table = apachDoc.getTables().get(targetTableIndex);
-        int rowIndex = 1;
+        int rowIndex = table.getRows().size();
+
         try {
-            JSONArray timelineReport=new JSONArray(originalRow.getProperty("project_charter_timeline_report"));
-            for (int i = 0; i < timelineReport.length(); i++) {
-                JSONObject response = timelineReport.getJSONObject(i);
-                String events = response.getString("charter_events");
-                String dateCommenced = response.getString("charter_date_commenced");
-                String dateFinalized = response.getString("charter_date_finalized");
-                String responsibility = response.getString("charter_responsibility");
-                XWPFTableRow row = table.getRow(rowIndex);
-                if (row == null) {
-                    row = table.createRow();
-                }
+            String timelineReport = originalRow.getProperty("reporting_timeline");
+            String[] timelineList = timelineReport.split(";");
+
+            for (String timeline : timelineList) {
+                XWPFTableRow row = rowIndex < table.getRows().size() ? table.getRow(rowIndex) : table.createRow();
                 XWPFTableCell cell = row.getCell(0);
-                cell.removeParagraph(0);
-                XWPFParagraph addparagraph = cell.addParagraph();
-                XWPFRun run = addparagraph.createRun();
-                run.setFontFamily("calibri");
+
+                while (!cell.getParagraphs().isEmpty()) {
+                    cell.removeParagraph(0);
+                }
+
+                XWPFParagraph addParagraph = cell.addParagraph();
+                XWPFRun run = addParagraph.createRun();
+                run.setFontFamily("Calibri");
                 run.setFontSize(11);
-                run.setText(events);
-                XWPFTableRow row1 = table.getRow(rowIndex);
-                if (row1 == null) {
-                    row1 = table.createRow();
-                }
-                XWPFTableCell cell1 = row1.getCell(1);
-                cell1.removeParagraph(0);
-                XWPFParagraph addparagraph1 = cell1.addParagraph();
-                XWPFRun run1 = addparagraph1.createRun();
-                run1.setFontFamily("calibri");
-                run1.setFontSize(11);
-                run1.setText(dateCommenced);
-                XWPFTableRow row2 = table.getRow(rowIndex);
-                if (row2 == null) {
-                    row2 = table.createRow();
-                }
-                XWPFTableCell cell2 = row2.getCell(2);
-                cell2.removeParagraph(0);
-                XWPFParagraph addparagraph2 = cell2.addParagraph();
-                XWPFRun run2 = addparagraph2.createRun();
-                run2.setFontFamily("calibri");
-                run2.setFontSize(11);
-                run2.setText(dateFinalized);
-                XWPFTableRow row3 = table.getRow(rowIndex);
-                if (row3 == null) {
-                    row3 = table.createRow();
-                }
-                XWPFTableCell cell3 = row3.getCell(3);
-                cell3.removeParagraph(0);
-                XWPFParagraph addparagraph3 = cell3.addParagraph();
-                XWPFRun run3 = addparagraph3.createRun();
-                run3.setFontFamily("calibri");
-                run3.setFontSize(11);
-                run3.setText(responsibility);
+                run.setText("\u2022 " + timeline);
                 rowIndex++;
             }
-        }catch (Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
+    }
+
+    public static String unescapeHtml(String input) {
+        return StringEscapeUtils.unescapeHtml4(input);
     }
 
 
