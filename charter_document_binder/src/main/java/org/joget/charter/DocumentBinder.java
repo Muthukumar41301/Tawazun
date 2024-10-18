@@ -1,4 +1,4 @@
-package org.joget.word;
+package org.joget.charter;
 
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackagePart;
@@ -58,17 +58,17 @@ public class DocumentBinder extends FormBinder implements FormStoreBinder, FormS
 
     @Override
     public String getVersion() {
-        return "1.0.0";
+        return "7.0.0";
     }
 
     @Override
     public String getDescription() {
-        return  AppPluginUtil.getMessage("org.joget.word.DocumentBinder.pluginDesc", getClassName(), MESSAGE_PATH);
+        return  AppPluginUtil.getMessage("org.joget.charter.DocumentBinder.pluginDesc", getClassName(), MESSAGE_PATH);
     }
 
     @Override
     public String getLabel() {
-        return AppPluginUtil.getMessage("org.joget.word.DocumentBinder.pluginLabel", getClassName(), MESSAGE_PATH);
+        return AppPluginUtil.getMessage("org.joget.charter.DocumentBinder.pluginLabel", getClassName(), MESSAGE_PATH);
     }
 
     @Override
@@ -278,7 +278,6 @@ public class DocumentBinder extends FormBinder implements FormStoreBinder, FormS
                                     r.setText(text, 0);
                                 }
                                 if (text.equals("project_scope") && jsonObject.getProperty(key).contains("<")) {
-                                    LogUtil.info("project_scope",key);
                                     setText(apachDoc, jsonObject, text,"scope");
                                     text = text.replace(text, " ");
                                     r.setText(text, 0);
@@ -951,27 +950,25 @@ public class DocumentBinder extends FormBinder implements FormStoreBinder, FormS
     public void setTimelinesAndReports(FormRow originalRow) {
         int targetTableIndex = 14;
         XWPFTable table = apachDoc.getTables().get(targetTableIndex);
-        int rowIndex = table.getRows().size();
 
         try {
             String timelineReport = originalRow.getProperty("reporting_timeline");
             String[] timelineList = timelineReport.split(";");
 
+            XWPFTableRow row = table.getRow(0);
+            XWPFTableCell cell = row.getCell(0);
+            cell.removeParagraph(0);
+
+            XWPFParagraph paragraph = cell.addParagraph();
+
             for (String timeline : timelineList) {
-                XWPFTableRow row = rowIndex < table.getRows().size() ? table.getRow(rowIndex) : table.createRow();
-                XWPFTableCell cell = row.getCell(0);
-
-                while (!cell.getParagraphs().isEmpty()) {
-                    cell.removeParagraph(0);
-                }
-
-                XWPFParagraph addParagraph = cell.addParagraph();
-                XWPFRun run = addParagraph.createRun();
+                XWPFRun run = paragraph.createRun();
                 run.setFontFamily("Calibri");
                 run.setFontSize(11);
-                run.setText("\u2022 " + timeline);
-                rowIndex++;
+                run.setText("\u2022 " + timeline.trim());
+                run.addBreak();
             }
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }

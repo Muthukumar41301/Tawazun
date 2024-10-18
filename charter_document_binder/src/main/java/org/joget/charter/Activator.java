@@ -1,4 +1,4 @@
-package org.joget.word;
+package org.joget.charter;
 
 import java.util.ArrayList;
 import java.util.Collection;

@@ -1,4 +1,4 @@
-package org.joget.word;
+package org.joget.charter;
 
 import org.apache.poi.ooxml.POIXMLDocumentPart;
 import org.apache.poi.openxml4j.opc.PackagePart;
